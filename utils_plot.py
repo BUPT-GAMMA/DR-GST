@@ -12,8 +12,6 @@ import mpl_toolkits.mplot3d
 import matplotlib as mpl
 from sklearn.datasets import make_circles
 from sklearn.manifold import TSNE
-from sklearn.neighbors import KernelDensity
-from sklearn.decomposition import PCA
 from utils import get_confidence
 
 
