@@ -17,16 +17,6 @@ from sklearn.decomposition import PCA
 from utils import get_confidence
 
 
-def plot_conf_dis(output, mask, labels, dataset, stage, sign=True):
-    if sign:
-        pred = torch.softmax(output[mask], dim=1).cpu()
-    else:
-        pred = output[mask]
-    confidence, pred_max_index = torch.max(pred, 1)
-    correct_index = (labels[mask].cpu() == pred_max_index).cpu()
-    plot_histograms(confidence[correct_index], confidence[np.invert(correct_index)],
-                    'Conf. - %s - %d'%(dataset, stage), ['Correct', 'Incorrect'], ['Confidence', 'Density'], 50)
-
 def plot_un_conf(output, labels, mask, bald, dataset):
     bald = bald[mask]
     output = output[mask]
