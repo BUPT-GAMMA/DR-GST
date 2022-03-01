@@ -169,8 +169,7 @@ def main(dataset, model_path):
         acc_test, loss_test = test(adj, features, labels, idx_test, nclass, model_path, g)
 
         # plot_data_distribution(best_output.detach().cpu(), bald, labels, idx_unlabeled, idx_train, idx_test, args.dataset)
-        # plot_un_conf(best_output.detach().cpu(), labels, idx_unlabeled, bald, args.dataset)
-        # plot_conf_dis(best_output, idx_unlabeled, labels, args.dataset, s)
+        # plot_un_conf(best_output.detach().cpu(), labels.cpu(), idx_unlabeled, bald, args.dataset)
         # plot_dis_pseudo(dataset, best_output.detach(), idx_train, idx_test, labels, idx_unlabeled, idx_pseudo, bald, s)
 
 
