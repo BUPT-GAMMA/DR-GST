@@ -121,7 +121,9 @@ def test(adj, features, labels, idx_test, nclass, model_path, g):
 
 
 def main(dataset, model_path):
+    # Load data from dataset
     g, adj, features, labels, idx_train, idx_val, idx_test, oadj = load_data(dataset, args.labelrate)
+    # Move data to device
     g = g.to(device)
     features = features.to(device)
     adj = adj.to(device)
@@ -131,9 +133,10 @@ def main(dataset, model_path):
     idx_val = idx_val.to(device)
     idx_test = idx_test.to(device)
     idx_pseudo = torch.zeros_like(idx_train)
+    # Get number of nodes and classes
     n_node = labels.size()[0]
     nclass = labels.max().item() + 1
-
+    # Get the mc_adj if drop_method is dropedge
     if args.drop_method == 'dropedge':
         mc_adj = get_mc_adj(oadj, device, args.droprate)
 
@@ -143,14 +146,21 @@ def main(dataset, model_path):
 
     idx_train_ag = idx_train.clone().to(device)
     pseudo_labels = labels.clone().to(device)
+    # Initialize bald and T
     bald = torch.ones(n_node).to(device)
     T = nn.Parameter(torch.eye(nclass, nclass).to(device)) # transition matrix
     T.requires_grad = False
+    # Generate random seed
     seed = np.random.randint(0, 10000)
+    # Loop through stages
     for s in range(args.stage):
+        # Train the model
         best_output = train(model_path, idx_train_ag, idx_val, idx_test, features, adj, pseudo_labels, labels, bald, T, g, seed)
+        # Update T
         T = update_T(best_output, idx_train, labels, T, device)
+        # Get indices of unlabeled nodes
         idx_unlabeled = ~(idx_train | idx_test | idx_val)
+        # Get bald based on drop_method
         if args.drop_method == 'dropout':
             bald = uncertainty_dropout(adj, features, nclass, model_path, args, device)
         elif args.drop_method == 'dropedge':
@@ -162,7 +172,9 @@ def main(dataset, model_path):
         model.load_state_dict(state_dict)
         model.to(device)
         model.eval()
+        # Get best output
         best_output = model(features, adj)
+        # Regenerate pseudo_labels
         idx_train_ag, pseudo_labels, idx_pseudo = regenerate_pseudo_label(best_output, labels, idx_train, idx_unlabeled,
                                                                           args.threshold, device)
         # Testing
